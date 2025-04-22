@@ -3,7 +3,7 @@
 Página web que promueve la infraestructura sostenible, desarrollada por estudiantes y profesores de la Universidad Antonio Nariño. Incluye animaciones para servicios como evaluación del costo del ciclo de vida, emisiones, resiliencia climática, y gestión de activos.
 
 ## Visualizar
-Visita: [https://tu-usuario.github.io/infraestructura-sostenible](https://tu-usuario.github.io/infraestructura-sostenible)
+Visita: [https://eosoriob2023.github.io/infraestructura-sostenible](https://eosoriob2023.github.io/infraestructura-sostenible)
 
 ## Características
 - Diseño responsivo con botón hamburguesa.
@@ -14,4 +14,4 @@ Visita: [https://tu-usuario.github.io/infraestructura-sostenible](https://tu-usu
 ## Instalación Local
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/infraestructura-sostenible.git
+   git clone https://github.com/eosoriob2023/infraestructura-sostenible.git
