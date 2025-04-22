@@ -1,0 +1,615 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Define el conjunto de caracteres y la compatibilidad con dispositivos móviles -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacia una Infraestructura Sostenible</title>
+    <!-- Importa la fuente Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Importa Anime.js para animaciones -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"></script>
+    <!-- Estilos CSS modernos -->
+    <style>
+        /* Estilos generales para el cuerpo de la página */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Estilos para la cabecera */
+        header {
+            background: linear-gradient(rgba(30, 58, 138, 0.7), rgba(59, 130, 246, 0.7)), url('ChatGPT_Image_20250422.png') no-repeat center center/cover;
+            color: white;
+            text-align: center;
+            padding: 4rem 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Estilos para el botón de idioma */
+        .language-toggle {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .language-toggle:hover {
+            background-color: #66BB6A;
+        }
+
+        /* Estilos para el menú de navegación */
+        nav {
+            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 0 1.5rem;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.3s ease, transform 0.2s ease;
+        }
+
+        nav ul li a:hover {
+            color: #e0f7fa;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para el botón hamburguesa */
+        .hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: #ffffff;
+            z-index: 1001;
+        }
+
+        .hamburger:hover {
+            color: #e0f7fa;
+        }
+
+        .hamburger svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        /* Estilos para el menú en pantallas pequeñas */
+        .nav-menu {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .nav-menu.active {
+            transform: translateX(0);
+            opacity: 1;
+            display: block;
+        }
+
+        /* Estilos para el contenido principal */
+        main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        main section {
+            margin-bottom: 2rem;
+        }
+
+        main h2 {
+            color: #1e3a8a;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        main p {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Estilos para las tarjetas de servicios */
+        .services-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: center;
+        }
+
+        .service-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            width: 280px;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+
+        .service-card svg {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 1rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.2rem;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-card p {
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        /* Estilos para los botones */
+        .button {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background-color: #3b82f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #1e40af;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+            box-shadow: none;
+        }
+
+        /* Estilos para el pie de página */
+        footer {
+            background-color: #1e3a8a;
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        footer p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        /* Media Queries para diseño responsivo */
+        @media (max-width: 768px) {
+            header {
+                padding: 3rem 1rem;
+                min-height: 200px;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .language-toggle {
+                top: 0.5rem;
+                right: 4rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: linear-gradient(135deg, #4CAF50, #66BB6A);
+                padding: 1rem 0;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            .hamburger {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 0.5rem 0;
+            }
+
+            main h2 {
+                font-size: 1.5rem;
+            }
+
+            .button {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .service-card {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                padding: 2rem 0.5rem;
+                min-height: 150px;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            nav ul li a {
+                font-size: 1rem;
+            }
+
+            main {
+                padding: 0 1rem;
+            }
+
+            footer p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabecera de la página -->
+    <header>
+        <h1>Hacia una Infraestructura Sostenible</h1>
+        <button class="language-toggle" data-lang="es">Switch to English</button>
+    </header>
+
+    <!-- Menú de navegación -->
+    <nav>
+        <!-- Botón hamburguesa -->
+        <button class="hamburger" aria-label="Abrir menú">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+        <!-- Menú de navegación -->
+        <ul class="nav-menu">
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#acerca">Acerca</a></li>
+            <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <!-- Contenido principal -->
+    <main>
+        <section id="inicio">
+            <h2>Importancia de la Sostenibilidad en la Infraestructura</h2>
+            <p>La sostenibilidad en la infraestructura es clave para enfrentar los desafíos del cambio climático y el crecimiento urbano. Diseñar puentes, edificios y sistemas energéticos con materiales reciclables, eficiencia energética y resiliencia climática no solo reduce el impacto ambiental, sino que también mejora la calidad de vida. Nuestra misión es promover soluciones innovadoras que equilibren el desarrollo con la conservación del planeta.</p>
+        </section>
+
+        <section id="acerca">
+            <h2>Acerca de Nosotros</h2>
+            <p>Somos un grupo de estudiantes y profesores de la Universidad Antonio Nariño, promotores de la infraestructura sostenible. A través de la investigación, la educación y la innovación, trabajamos para desarrollar soluciones que minimicen el impacto ambiental y fortalezcan la resiliencia de las infraestructuras en Colombia y más allá.</p>
+        </section>
+
+        <section id="servicios">
+            <h2>Servicios</h2>
+            <p>Ofrecemos servicios especializados para avanzar hacia una infraestructura sostenible:</p>
+            <div class="services-container">
+                <div class="service-card" data-service="lcc">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2">
+                        <path d="M3 3h18v18H3zM7 7h10v10H7z"/>
+                        <path d="M7 7v10M17 7v10"/>
+                    </svg>
+                    <h3>Evaluación del Costo del Ciclo de Vida (LCC)</h3>
+                    <p>Analizamos costos desde el diseño hasta el mantenimiento, optimizando recursos.</p>
+                </div>
+                <div class="service-card" data-service="emissions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2">
+                        <path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9z"/>
+                        <path d="M12 12v6M9 12h6"/>
+                    </svg>
+                    <h3>Evaluación del Ciclo de Vida (Emisiones)</h3>
+                    <p>Cuantificamos emisiones de carbono, promoviendo diseños de baja huella ecológica.</p>
+                </div>
+                <div class="service-card" data-service="climate">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2">
+                        <path d="M3 15h18M6 12h12M9 9h6"/>
+                        <path d="M12 3v6"/>
+                    </svg>
+                    <h3>Infraestructura frente al Cambio Climático</h3>
+                    <p>Diseñamos soluciones resilientes para eventos climáticos extremos.</p>
+                </div>
+                <div class="service-card" data-service="asset">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="2">
+                        <path d="M12 3l9 9-9 9-9-9 9-9z"/>
+                        <path d="M12 12l6 6"/>
+                    </svg>
+                    <h3>Gestión de la Infraestructura como Activo</h3>
+                    <p>Optimizamos la vida útil y el valor económico de los activos.</p>
+                </div>
+            </div>
+            <a href="#contacto" class="button">Contáctanos</a>
+        </section>
+
+        <section id="contacto">
+            <h2>Contacto</h2>
+            <p>¡Búscanos para colaborar en proyectos de infraestructura sostenible! Visita nuestro sitio en <a href="https://www.uan.edu.co">uan.edu.co</a>.</p>
+        </section>
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>© 2025 Hacia una Infraestructura Sostenible. Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Script JavaScript para el botón hamburguesa, selector de idioma y animaciones -->
+    <script>
+        // Contenido en español e inglés
+        const content = {
+            es: {
+                title: 'Hacia una Infraestructura Sostenible',
+                inicio: {
+                    title: 'Importancia de la Sostenibilidad en la Infraestructura',
+                    text: 'La sostenibilidad en la infraestructura es clave para enfrentar los desafíos del cambio climático y el crecimiento urbano. Diseñar puentes, edificios y sistemas energéticos con materiales reciclables, eficiencia energética y resiliencia climática no solo reduce el impacto ambiental, sino que también mejora la calidad de vida. Nuestra misión es promover soluciones innovadoras que equilibren el desarrollo con la conservación del planeta.'
+                },
+                acerca: {
+                    title: 'Acerca de Nosotros',
+                    text: 'Somos un grupo de estudiantes y profesores de la Universidad Antonio Nariño, promotores de la infraestructura sostenible. A través de la investigación, la educación y la innovación, trabajamos para desarrollar soluciones que minimicen el impacto ambiental y fortalezcan la resiliencia de las infraestructuras en Colombia y más allá.'
+                },
+                servicios: {
+                    title: 'Servicios',
+                    intro: 'Ofrecemos servicios especializados para avanzar hacia una infraestructura sostenible:'
+                },
+                contacto: {
+                    title: 'Contacto',
+                    text: '¡Búscanos para colaborar en proyectos de infraestructura sostenible! Visita nuestro sitio en <a href="https://www.uan.edu.co">uan.edu.co</a>.'
+                },
+                footer: '© 2025 Hacia una Infraestructura Sostenible. Todos los derechos reservados.'
+            },
+            en: {
+                title: 'Towards Sustainable Infrastructure',
+                inicio: {
+                    title: 'Importance of Sustainability in Infrastructure',
+                    text: 'Sustainability in infrastructure is crucial for addressing climate change and urban growth. Designing bridges, buildings, and energy systems with recyclable materials, energy efficiency, and climate resilience not only reduces environmental impact but also enhances quality of life. Our mission is to promote innovative solutions that balance development with planetary conservation.'
+                },
+                acerca: {
+                    title: 'About Us',
+                    text: 'We are a group of students and professors from Antonio Nariño University, advocates for sustainable infrastructure. Through research, education, and innovation, we work to develop solutions that minimize environmental impact and strengthen the resilience of infrastructure in Colombia and beyond.'
+                },
+                servicios: {
+                    title: 'Services',
+                    intro: 'We offer specialized services to advance sustainable infrastructure:'
+                },
+                contacto: {
+                    title: 'Contact',
+                    text: 'Reach out to collaborate on sustainable infrastructure projects! Visit our website at <a href="https://www.uan.edu.co">uan.edu.co</a>.'
+                },
+                footer: '© 2025 Towards Sustainable Infrastructure. All rights reserved.'
+            }
+        };
+
+        // Selecciona el botón hamburguesa y el menú
+        const hamburger = document.querySelector('.hamburger');
+        const navMenu = document.querySelector('.nav-menu');
+
+        // Verifica que los elementos existan
+        if (!hamburger || !navMenu) {
+            console.error('Error: No se encontraron .hamburger o .nav-menu');
+        } else {
+            // Alterna el menú al hacer clic en el botón hamburguesa
+            hamburger.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                console.log('Menú alternado:', navMenu.classList.contains('active') ? 'Abierto' : 'Cerrado');
+            });
+
+            // Cierra el menú al hacer clic en un ítem del menú
+            navMenu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    navMenu.classList.remove('active');
+                    console.log('Menú cerrado por clic en enlace');
+                });
+            });
+
+            // Cierra el menú al hacer clic fuera de él
+            document.addEventListener('click', (event) => {
+                if (!hamburger.contains(event.target) && !navMenu.contains(event.target)) {
+                    navMenu.classList.remove('active');
+                    console.log('Menú cerrado por clic fuera');
+                }
+            });
+        }
+
+        // Selector de idioma
+        const langToggle = document.querySelector('.language-toggle');
+        let currentLang = 'es';
+
+        function updateLanguage(lang) {
+            document.querySelector('header h1').textContent = content[lang].title;
+            document.querySelector('#inicio h2').textContent = content[lang].inicio.title;
+            document.querySelector('#inicio p').textContent = content[lang].inicio.text;
+            document.querySelector('#acerca h2').textContent = content[lang].acerca.title;
+            document.querySelector('#acerca p').textContent = content[lang].acerca.text;
+            document.querySelector('#servicios h2').textContent = content[lang].servicios.title;
+            document.querySelector('#servicios p').textContent = content[lang].servicios.intro;
+            document.querySelector('#contacto h2').textContent = content[lang].contacto.title;
+            document.querySelector('#contacto p').innerHTML = content[lang].contacto.text;
+            document.querySelector('footer p').textContent = content[lang].footer;
+            document.title = content[lang].title;
+
+            // Actualiza el botón de idioma
+            langToggle.textContent = lang === 'es' ? 'Switch to English' : 'Cambiar a Español';
+            langToggle.setAttribute('data-lang', lang);
+            currentLang = lang;
+        }
+
+        langToggle.addEventListener('click', () => {
+            updateLanguage(currentLang === 'es' ? 'en' : 'es');
+        });
+
+        // Inicializa en español
+        updateLanguage('es');
+
+        // Animaciones para los servicios
+        const serviceCards = document.querySelectorAll('.service-card');
+
+        function animateServices() {
+            serviceCards.forEach((card, index) => {
+                anime({
+                    targets: card,
+                    translateX: [100, 0],
+                    opacity: [0, 1],
+                    scale: [0.9, 1],
+                    delay: index * 200,
+                    duration: 800,
+                    easing: 'easeOutQuad'
+                });
+
+                // Animación específica según el servicio
+                const svg = card.querySelector('svg');
+                if (card.dataset.service === 'lcc') {
+                    anime({
+                        targets: svg.querySelectorAll('path'),
+                        strokeDashoffset: [anime.setDashoffset, 0],
+                        duration: 1000,
+                        delay: index * 200 + 200,
+                        easing: 'easeInOutSine'
+                    });
+                } else if (card.dataset.service === 'emissions') {
+                    anime({
+                        targets: svg,
+                        rotate: '1turn',
+                        duration: 1500,
+                        delay: index * 200 + 200,
+                        easing: 'easeInOutQuad'
+                    });
+                } else if (card.dataset.service === 'climate') {
+                    anime({
+                        targets: svg.querySelector('path:last-child'),
+                        translateY: [-10, 0],
+                        duration: 800,
+                        delay: index * 200 + 200,
+                        easing: 'easeInOutBounce'
+                    });
+                } else if (card.dataset.service === 'asset') {
+                    anime({
+                        targets: svg,
+                        scale: [1, 1.2, 1],
+                        duration: 1200,
+                        delay: index * 200 + 200,
+                        easing: 'easeInOutElastic'
+                    });
+                }
+            });
+        }
+
+        // Ejecuta la animación cuando la sección es visible
+        const servicesSection = document.querySelector('#servicios');
+        const observer = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                animateServices();
+                observer.disconnect();
+            }
+        }, { threshold: 0.1 });
+
+        observer.observe(servicesSection);
+    </script>
+</body>
+</html>
