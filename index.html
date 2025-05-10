@@ -251,6 +251,61 @@
             box-shadow: none;
         }
 
+        /* Estilos para la sección de actividad educativa */
+        .activity-form {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            max-width: 500px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .activity-form label {
+            display: block;
+            font-weight: 500;
+            color: #1e3a8a;
+            margin-bottom: 0.5rem;
+        }
+
+        .activity-form input {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .activity-form button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .activity-form button:hover {
+            background-color: #66BB6A;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e6f3e6;
+            border-radius: 4px;
+            color: #1e3a8a;
+            font-size: 1rem;
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
         /* Estilos para el pie de página */
         footer {
             background-color: #1e3a8a;
@@ -325,6 +380,10 @@
                 width: 100%;
                 max-width: 300px;
             }
+
+            .activity-form {
+                padding: 1rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -373,6 +432,7 @@
             <li><a href="#inicio">Inicio</a></li>
             <li><a href="#acerca">Acerca</a></li>
             <li><a href="#servicios">Servicios</a></li>
+            <li><a href="#actividad">Actividad Educativa</a></li>
             <li><a href="#contacto">Contacto</a></li>
         </ul>
     </nav>
@@ -426,7 +486,21 @@
                     <p>Optimizamos la vida útil y el valor económico de los activos.</p>
                 </div>
             </div>
+            <a href="#actividad" class="button">Prueba la Calculadora de Emisiones</a>
             <a href="#contacto" class="button">Contáctanos</a>
+        </section>
+
+        <section id="actividad">
+            <h2>Actividad Educativa</h2>
+            <p>Calcula las emisiones de CO₂ de un proyecto de infraestructura y descubre cómo reducir su impacto ambiental.</p>
+            <div class="activity-form">
+                <label for="concrete">Cantidad de Concreto (toneladas):</label>
+                <input type="number" id="concrete" min="0" step="0.1" required>
+                <label for="distance">Distancia de Transporte (km):</label>
+                <input type="number" id="distance" min="0" step="0.1" required>
+                <button onclick="calculateEmissions()">Calcular Emisiones</button>
+                <div id="result" class="result"></div>
+            </div>
         </section>
 
         <section id="contacto">
@@ -440,7 +514,7 @@
         <p>© 2025 Hacia una Infraestructura Sostenible. Todos los derechos reservados.</p>
     </footer>
 
-    <!-- Script JavaScript para el botón hamburguesa, selector de idioma y animaciones -->
+    <!-- Script JavaScript para el botón hamburguesa, selector de idioma, animaciones y actividad -->
     <script>
         // Contenido en español e inglés
         const content = {
@@ -457,6 +531,10 @@
                 servicios: {
                     title: 'Servicios',
                     intro: 'Ofrecemos servicios especializados para avanzar hacia una infraestructura sostenible:'
+                },
+                actividad: {
+                    title: 'Actividad Educativa',
+                    text: 'Calcula las emisiones de CO₂ de un proyecto de infraestructura y descubre cómo reducir su impacto ambiental.'
                 },
                 contacto: {
                     title: 'Contacto',
@@ -477,6 +555,10 @@
                 servicios: {
                     title: 'Services',
                     intro: 'We offer specialized services to advance sustainable infrastructure:'
+                },
+                actividad: {
+                    title: 'Educational Activity',
+                    text: 'Calculate the CO₂ emissions of an infrastructure project and learn how to reduce its environmental impact.'
                 },
                 contacto: {
                     title: 'Contact',
@@ -529,6 +611,8 @@
             document.querySelector('#acerca p').textContent = content[lang].acerca.text;
             document.querySelector('#servicios h2').textContent = content[lang].servicios.title;
             document.querySelector('#servicios p').textContent = content[lang].servicios.intro;
+            document.querySelector('#actividad h2').textContent = content[lang].actividad.title;
+            document.querySelector('#actividad p').textContent = content[lang].actividad.text;
             document.querySelector('#contacto h2').textContent = content[lang].contacto.title;
             document.querySelector('#contacto p').innerHTML = content[lang].contacto.text;
             document.querySelector('footer p').textContent = content[lang].footer;
@@ -600,16 +684,71 @@
             });
         }
 
-        // Ejecuta la animación cuando la sección es visible
-        const servicesSection = document.querySelector('#servicios');
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                animateServices();
-                observer.disconnect();
+        // Animaciones para la actividad educativa
+        function animateActivity() {
+            const activityForm = document.querySelector('.activity-form');
+            anime({
+                targets: activityForm,
+                translateY: [50, 0],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // Calculadora de emisiones
+        function calculateEmissions() {
+            const concrete = parseFloat(document.getElementById('concrete').value);
+            const distance = parseFloat(document.getElementById('distance').value);
+            const resultDiv = document.getElementById('result');
+
+            if (isNaN(concrete) || isNaN(distance) || concrete < 0 || distance < 0) {
+                resultDiv.textContent = currentLang === 'es' ? 'Por favor, ingresa valores válidos.' : 'Please enter valid values.';
+                resultDiv.style.backgroundColor = '#f5e6e6';
+                animateResult();
+                return;
             }
+
+            const concreteEmissions = concrete * 150; // 0.15 ton CO₂ por ton de concreto
+            const transportEmissions = concrete * distance * 0.1; // 0.1 kg CO₂ por km por ton
+            const totalEmissions = (concreteEmissions + transportEmissions).toFixed(2);
+            const tip = currentLang === 'es' ? 'Consejo: Usa concreto reciclado o reduce la distancia de transporte para disminuir las emisiones.' : 'Tip: Use recycled concrete or reduce transport distance to lower emissions.';
+
+            resultDiv.innerHTML = `${currentLang === 'es' ? 'Emisiones estimadas' : 'Estimated emissions'}: ${totalEmissions} kg CO₂<br>${tip}`;
+            resultDiv.style.backgroundColor = '#e6f3e6';
+            animateResult();
+        }
+
+        function animateResult() {
+            const resultDiv = document.getElementById('result');
+            anime({
+                targets: resultDiv,
+                opacity: [0, 1],
+                scale: [0.9, 1],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+
+        // Ejecuta animaciones cuando las secciones son visibles
+        const servicesSection = document.querySelector('#servicios');
+        const activitySection = document.querySelector('#actividad');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.id === 'servicios') {
+                        animateServices();
+                    } else if (entry.target.id === 'actividad') {
+                        animateActivity();
+                    }
+                    observer.unobserve(entry.target);
+                }
+            });
         }, { threshold: 0.1 });
 
         observer.observe(servicesSection);
+        observer.observe(activitySection);
     </script>
 </body>
 </html>
